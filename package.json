@@ -1,0 +1,10 @@
+{
+  "name": "mcp-context-saver",
+  "version": "0.0.1",
+  "type": "module",
+  "scripts": {
+    "test": "jest",
+    "build": "tsc",
+    "dev": "tsx src/cli.ts"
+  }
+}
