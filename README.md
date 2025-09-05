@@ -1,30 +1,39 @@
 # MCP Context Saver
 
-A powerful tool for analyzing Model Context Protocol (MCP) servers and creating intelligent LLM-powered wrappers that enhance their functionality.
+A powerful tool that analyzes Model Context Protocol (MCP) servers and creates intelligent LLM-powered wrappers around them. Transform any MCP server into an expert system that can understand natural language requests and coordinate complex multi-tool operations automatically.
 
 ## Features
 
-- **🔍 Server Analysis**: Automatically discover and analyze MCP server capabilities
-- **🤖 LLM-Powered Wrappers**: Generate intelligent wrappers that understand how to use server tools
-- **📊 Expert Configuration**: Create specialized expert configurations with custom system prompts
-- **🚀 Easy CLI**: Simple command-line interface for both analysis and serving
-- **🧪 Full Test Coverage**: Comprehensive unit and integration tests
+- **🔍 Automatic Server Analysis**: Discovers tools, resources, and prompts from any MCP server
+- **🤖 LLM-Powered Coordination**: Uses OpenAI to intelligently plan and execute multi-tool operations
+- **🎯 Expert System Generation**: Transforms servers into domain experts with natural language interfaces
+- **🚀 Simple CLI Interface**: Easy-to-use commands for analysis and deployment
+- **📊 Rich Configuration System**: Generates comprehensive configs with system prompts and metadata
+- **🧪 Production Ready**: Full test coverage, error handling, and TypeScript safety
+- **🔌 MCP Protocol Compliant**: Works with any standard MCP server implementation
 
 ## Quick Start
 
 ### Installation
 
 ```bash
+# Install globally for CLI usage
 npm install -g mcp-context-saver
+
+# Or install locally in your project
+npm install mcp-context-saver
 ```
 
 ### Setup
 
-Set your OpenAI API key:
+**Required Environment Variable:**
 
 ```bash
+# Set your OpenAI API key (required for both analysis and runtime)
 export OPENAI_API_KEY=your-api-key-here
 ```
+
+> **Note**: The system uses OpenAI GPT-4o-mini for both analysis and runtime coordination. Future versions will support additional LLM providers.
 
 ### Analyze an MCP Server
 
@@ -34,11 +43,12 @@ Analyze any MCP server to understand its capabilities:
 mcp-context-saver analyze /path/to/your/mcp-server
 ```
 
-This will:
-1. Connect to the MCP server
-2. Discover all available tools, resources, and prompts
-3. Use an LLM to generate an expert configuration
-4. Save the configuration to a JSON file
+**What happens during analysis:**
+1. **Connection**: Establishes STDIO transport to your MCP server
+2. **Discovery**: Interrogates server for all capabilities (tools, resources, prompts)
+3. **LLM Analysis**: Uses OpenAI to understand the server's purpose and generate expert identity
+4. **Configuration**: Creates a comprehensive JSON config with system prompts and metadata
+5. **Validation**: Ensures the configuration is valid and ready for runtime use
 
 ### Run the Wrapper Server
 
@@ -48,21 +58,28 @@ Use the generated configuration to run an intelligent wrapper:
 mcp-context-saver serve ./configs/your-server-config.json
 ```
 
-The wrapper server provides:
-- **Smart Tool Coordination**: Uses LLMs to determine which tools to use
-- **Three Operation Modes**: Discover, Execute, and Explain
-- **Unified Expert Interface**: Single tool that handles complex multi-step operations
+**The wrapper server transforms your MCP server into an expert system:**
+- **Intelligent Coordination**: LLM analyzes requests and automatically selects appropriate tools
+- **Natural Language Interface**: Users can make requests in plain English
+- **Three Operation Modes**: Discover capabilities, execute tasks, or explain functionality
+- **Multi-step Operations**: Handles complex workflows that require multiple tool calls
+- **Error Handling**: Graceful failure recovery and informative error messages
 
 ## How It Works
 
 ### 1. Analysis Phase
 
 ```mermaid
-graph LR
-    A[MCP Server] --> B[Analyzer]
-    B --> C[Capability Discovery]
-    C --> D[LLM Analysis]
-    D --> E[Expert Configuration]
+flowchart TD
+    A[MCP Server] -->|STDIO| B[Analyzer]
+    B --> C[Discover Tools]
+    B --> D[Discover Resources]
+    B --> E[Discover Prompts]
+    C --> F[LLM Analysis]
+    D --> F
+    E --> F
+    F -->|OpenAI GPT-4o-mini| G[Expert Configuration]
+    G --> H[JSON Config File]
 ```
 
 The analyzer:
@@ -74,11 +91,14 @@ The analyzer:
 ### 2. Wrapper Phase
 
 ```mermaid
-graph LR
-    A[User Query] --> B[Expert Tool]
-    B --> C[LLM Coordination]
-    C --> D[Wrapped Server]
-    D --> E[Results]
+flowchart TD
+    A[User Query] -->|"Find all large files"| B[Expert Tool]
+    B --> C[Load Config]
+    C --> D[LLM Coordination]
+    D -->|"Use list_files + filter by size"| E[Wrapped MCP Server]
+    E --> F[Execute Tools]
+    F --> G[Return Results]
+    G --> H[Structured Response]
 ```
 
 The wrapper:
@@ -103,14 +123,17 @@ mcp-context-saver analyze <server-path> [args...]
 
 **Examples:**
 ```bash
-# Analyze a local server
+# Analyze a JavaScript MCP server
 mcp-context-saver analyze ./my-server.js
 
-# Analyze with arguments
+# Analyze a built Node.js server with arguments
 mcp-context-saver analyze /usr/local/bin/mcp-server --config server.json
 
-# Analyze a Python server
+# Analyze a Python MCP server
 mcp-context-saver analyze python my_mcp_server.py
+
+# Analyze with complex arguments
+mcp-context-saver analyze node server.js --port 3000 --verbose
 ```
 
 ### `serve` Command
@@ -165,11 +188,12 @@ Perform tasks using the underlying server:
 }
 ```
 
-The LLM coordinator will:
-- Understand the request
-- Select appropriate tools
-- Execute the operations
-- Return structured results
+**The LLM coordination process:**
+1. **Request Analysis**: Understands the user's intent and requirements
+2. **Tool Planning**: Determines which tools are needed and in what sequence
+3. **Argument Generation**: Creates appropriate arguments for each tool call
+4. **Execution**: Calls the underlying MCP server tools
+5. **Result Processing**: Structures and explains the results
 
 ### Explain Mode
 
@@ -193,30 +217,47 @@ Returns:
 
 ## Configuration Format
 
-Generated configurations follow this structure:
+Generated configurations are comprehensive and include all necessary metadata:
 
 ```json
 {
   "name": "File System Expert",
-  "description": "Expert for managing files and directories",
-  "serverPath": "/path/to/server",
-  "args": ["--option", "value"],
-  "systemPrompt": "You are a file system expert...",
+  "description": "Comprehensive file and directory management with search capabilities",
+  "serverPath": "/path/to/your/mcp-server",
+  "args": ["--config", "server.json"],
+  "systemPrompt": "You are a File System Expert with comprehensive capabilities...\n\nWhen users request file operations:\n1. Use list_files to explore directories\n2. Use read_file to examine contents\n3. Always confirm destructive operations",
   "capabilities": {
     "tools": [
       {
         "name": "list_files",
-        "description": "List files in a directory"
+        "description": "List files and directories with filtering options",
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "path": { "type": "string" },
+            "pattern": { "type": "string" }
+          }
+        }
       }
     ],
-    "resources": [],
-    "prompts": []
+    "resources": [
+      {
+        "uri": "file://current-directory",
+        "name": "Current Directory Info"
+      }
+    ],
+    "prompts": [
+      {
+        "name": "file-operation-template",
+        "description": "Template for file operations"
+      }
+    ]
   },
   "metadata": {
     "analyzedAt": "2023-12-07T10:30:00.000Z",
-    "toolCount": 5,
-    "resourceCount": 0,
-    "promptCount": 0
+    "toolCount": 8,
+    "resourceCount": 2,
+    "promptCount": 1
   }
 }
 ```
@@ -228,13 +269,24 @@ Generated configurations follow this structure:
 - Node.js 18+
 - OpenAI API key
 
-### Setup
+### Local Development Setup
 
 ```bash
+# Clone the repository
 git clone https://github.com/your-org/mcp-context-saver.git
 cd mcp-context-saver
+
+# Install dependencies
 npm install
+
+# Set up environment
+export OPENAI_API_KEY=your-api-key-here
+
+# Build the project
 npm run build
+
+# Verify installation
+npm test
 ```
 
 ### Running Tests
@@ -253,37 +305,49 @@ npm run test:integration
 ### Development Commands
 
 ```bash
-# Build the project
+# Build TypeScript to JavaScript
 npm run build
 
-# Run CLI in development
-npm run dev -- analyze ./test-server.js
+# Run CLI in development mode (with TypeScript)
+npm run dev -- analyze ./simple-test-server.js
+
+# Development with specific commands
+npm run analyze -- ./test-server.js
+npm run serve -- ./configs/test-config.json
 
 # Clean build artifacts
 npm run clean
+
+# Watch mode for continuous building
+npm run build -- --watch
 ```
 
 ## Project Structure
 
 ```
 mcp-context-saver/
-├── src/
-│   ├── analyzer.ts      # MCP server analysis logic
-│   ├── wrapper.ts       # Wrapper server implementation
-│   ├── cli.ts           # Command-line interface
-│   └── types.ts         # Shared TypeScript types
+├── src/                          # Source TypeScript files
+│   ├── analyzer.ts               # Server analysis and config generation
+│   ├── wrapper.ts                # Runtime wrapper server
+│   ├── cli.ts                    # Command-line interface
+│   └── types.ts                  # Type definitions and Zod schemas
+├── dist/                         # Compiled JavaScript (gitignored)
 ├── tests/
 │   ├── integration/
-│   │   ├── full-flow.test.ts    # End-to-end tests
-│   │   └── mock-server.ts       # Test MCP server
+│   │   ├── full-flow.test.ts     # End-to-end workflow tests
+│   │   ├── mock-server.ts        # TypeScript test server
+│   │   └── mock-server.js        # Simple JavaScript test server
 │   └── unit/
-│       ├── analyzer.test.ts     # Analyzer unit tests
-│       └── wrapper.test.ts      # Wrapper unit tests
-├── configs/             # Generated configurations (gitignored)
-├── package.json
-├── tsconfig.json
-├── jest.config.js
-└── README.md
+│       ├── analyzer.test.ts      # Analyzer component tests
+│       └── wrapper.test.ts       # Wrapper component tests
+├── configs/                      # Generated configurations (gitignored)
+├── test-*-server/                # Test MCP servers for development
+├── package.json                  # Dependencies and scripts
+├── tsconfig.json                 # TypeScript configuration
+├── jest.config.js                # Test configuration
+├── ARCHITECTURE.md               # System design documentation
+├── CONTRIBUTING.md               # Development guidelines
+└── README.md                     # This file
 ```
 
 ## Examples
@@ -316,59 +380,148 @@ mcp-context-saver serve ./configs/file-system-expert-1609459200000.json
 
 ## Advanced Usage
 
-### Custom System Prompts
+### Intelligent System Prompt Generation
 
-The analyzer generates intelligent system prompts based on discovered capabilities. For example:
+The analyzer uses OpenAI to generate contextual system prompts that help the LLM understand how to coordinate with each specific MCP server:
 
+**Example Generated System Prompt:**
 ```
 You are a File System Expert with comprehensive file and directory management capabilities.
 
 Your available tools allow you to:
-- List and search files and directories
-- Read and write file contents
-- Create and delete files and directories
-- Check file permissions and metadata
+- List and search files and directories (list_files)
+- Read and write file contents (read_file, write_file)
+- Create and delete files and directories (create_dir, delete_file)
+- Search for files by patterns and content (search_files)
+- Check file permissions and metadata (stat_file)
 
-When users request file operations:
-1. Use list_files to explore directory structures
-2. Use read_file to examine file contents
-3. Use write_file to create or modify files
-4. Use search_files to find specific files by pattern
+Coordination Guidelines:
+1. For directory exploration, start with list_files
+2. For file content tasks, use read_file before making changes
+3. For search operations, use search_files with appropriate patterns
+4. Always confirm destructive operations with users
+5. Provide clear explanations of what you're doing
 
-Always confirm destructive operations before executing them.
+Error Handling:
+- Check if paths exist before operations
+- Handle permission errors gracefully
+- Provide helpful error messages to users
 ```
 
-### Error Handling
+**The system prompt includes:**
+- Expert identity and capabilities overview
+- Available tool descriptions and usage patterns
+- Best practices for tool coordination
+- Error handling guidelines
+- User interaction principles
 
-The system provides detailed error messages and suggestions:
+### Comprehensive Error Handling
 
+The system provides detailed error messages with actionable guidance:
+
+**Environment Issues:**
 ```bash
-# Missing API key
 Error: OPENAI_API_KEY environment variable is required
+
 Please set your OpenAI API key:
   export OPENAI_API_KEY=your-api-key
 
-# Server connection issues
-Error: Failed to connect to MCP server
-Make sure the server path is correct and the server is executable.
-You may need to build the server or install its dependencies first.
+Get an API key at: https://platform.openai.com/api-keys
+```
+
+**Server Connection Issues:**
+```bash
+Error: Failed to connect to MCP server at ./my-server.js
+
+Troubleshooting steps:
+  1. Verify the server path is correct
+  2. Ensure the server is executable (chmod +x)
+  3. Check if dependencies are installed (npm install)
+  4. Try running the server directly to test
+
+For Node.js servers, you may need:
+  npm run build
+```
+
+**Configuration Issues:**
+```bash
+Error: Failed to load configuration from ./config.json
+
+Possible causes:
+  1. File doesn't exist - check the path
+  2. Invalid JSON format - validate the file
+  3. Missing required fields - regenerate with analyze command
+
+To create a new configuration:
+  mcp-context-saver analyze <server-path>
+```
+
+**Runtime Coordination Errors:**
+```bash
+Error: Failed to coordinate with wrapped server
+
+This usually means:
+  1. The wrapped server stopped responding
+  2. Invalid tool arguments were generated
+  3. OpenAI API quota exceeded
+
+Check the wrapper server logs for more details.
 ```
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Make your changes
-4. Add tests for new functionality
-5. Ensure all tests pass
-6. Submit a pull request
+We welcome contributions! Please see [CONTRIBUTING.md](./CONTRIBUTING.md) for detailed guidelines.
+
+**Quick Start for Contributors:**
+
+1. **Fork and clone** the repository
+2. **Set up development environment:**
+   ```bash
+   npm install
+   export OPENAI_API_KEY=your-key
+   npm run build
+   npm test
+   ```
+3. **Create a feature branch:** `git checkout -b feature/your-feature`
+4. **Make your changes** following the coding standards
+5. **Add comprehensive tests** for new functionality
+6. **Ensure all tests pass:** `npm test`
+7. **Update documentation** as needed
+8. **Submit a pull request** with clear description
+
+**Development Resources:**
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - System design and component details
+- [CONTRIBUTING.md](./CONTRIBUTING.md) - Detailed development guidelines
+- `npm run dev -- --help` - Test CLI during development
 
 ## License
 
 MIT License - see LICENSE file for details.
 
-## Support
+## Support and Resources
 
-- Create an issue on GitHub for bugs or feature requests
-- Check the integration tests for usage examples
-- Review the CLI help: `mcp-context-saver --help`
+**Getting Help:**
+- 📖 **Documentation**: [ARCHITECTURE.md](./ARCHITECTURE.md) for system design
+- 🐛 **Bug Reports**: [GitHub Issues](https://github.com/your-org/mcp-context-saver/issues)
+- 💡 **Feature Requests**: [GitHub Issues](https://github.com/your-org/mcp-context-saver/issues)
+- 💬 **Discussions**: [GitHub Discussions](https://github.com/your-org/mcp-context-saver/discussions)
+
+**CLI Help:**
+```bash
+# General help
+mcp-context-saver --help
+
+# Command-specific help
+mcp-context-saver analyze --help
+mcp-context-saver serve --help
+```
+
+**Example Projects:**
+- Integration tests show real usage patterns
+- Test servers demonstrate MCP implementations
+- Generated configurations show expected output format
+
+**Related Resources:**
+- [Model Context Protocol Specification](https://modelcontextprotocol.io/docs)
+- [Official MCP Servers](https://github.com/modelcontextprotocol/servers)
+- [OpenAI API Documentation](https://platform.openai.com/docs)
