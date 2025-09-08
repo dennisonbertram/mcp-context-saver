@@ -193,7 +193,37 @@ await client.connect(transport);
 
 ## Quick Start
 
-### Analyze an MCP Server
+### Interactive Installer (Recommended)
+
+The easiest way to get started is with our interactive installer:
+
+```bash
+mcp-context-saver install
+```
+
+The installer will help you:
+- 🔍 **Discover** installed MCP servers on your system
+- 📦 **Install** new MCP servers from npm if needed
+- 🔧 **Analyze** and wrap servers automatically
+- ⚙️ **Configure** for Claude Desktop, Claude Code, or VS Code
+- ✅ **Validate** your setup
+
+#### Quick Install Examples
+
+```bash
+# Interactive mode (recommended for first-time users)
+mcp-context-saver install
+
+# Wrap a specific server and configure for Claude Desktop
+mcp-context-saver install --server ./my-server.js --agent claude-desktop
+
+# Configure existing wrapper for Claude Code
+mcp-context-saver install --agent claude-code
+```
+
+### Manual Setup
+
+#### Analyze an MCP Server
 
 Analyze any MCP server to understand its capabilities:
 
@@ -266,6 +296,41 @@ The wrapper:
 - Returns structured results
 
 ## CLI Reference
+
+### `install` Command (Interactive Installer)
+
+Launch the interactive installer for guided setup:
+
+```bash
+mcp-context-saver install [options]
+```
+
+**Options:**
+- `-s, --server <path>`: Path to MCP server to wrap
+- `-a, --agent <type>`: Configure for specific agent (claude-desktop, claude-code, vscode)
+- `-h, --help`: Display help information
+
+**Interactive Features:**
+- Server discovery - finds MCP servers in your system
+- NPM search - browse and install MCP servers from npm
+- Automatic analysis - wraps servers with LLM coordination
+- Agent configuration - sets up Claude Desktop, Claude Code, or VS Code
+- Configuration management - organize and manage multiple wrappers
+
+**Examples:**
+```bash
+# Interactive mode
+mcp-context-saver install
+
+# Direct server wrapping
+mcp-context-saver install --server ./weather-server.js
+
+# Configure for specific agent
+mcp-context-saver install --server ./api-server.js --agent claude-desktop
+
+# Just configure an existing wrapper
+mcp-context-saver install --agent claude-code
+```
 
 ### `analyze` Command
 

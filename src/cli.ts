@@ -18,6 +18,24 @@ program
   .description('MCP Context Saver - Analyze MCP servers and create LLM-powered wrappers')
   .version('0.0.1');
 
+// Install command - interactive installer
+program
+  .command('install')
+  .description('Interactive installer to discover, wrap, and configure MCP servers')
+  .option('-s, --server <path>', 'Path to MCP server to wrap')
+  .option('-a, --agent <type>', 'Configure for specific agent (claude-desktop, claude-code, vscode)')
+  .action(async (options) => {
+    try {
+      // Dynamic import to avoid circular dependencies
+      const { MCPInstaller } = await import('./installer.js');
+      const installer = new MCPInstaller();
+      await installer.run(options);
+    } catch (error) {
+      console.error(`Error: ${error instanceof Error ? error.message : String(error)}`);
+      process.exit(1);
+    }
+  });
+
 // Analyze command
 program
   .command('analyze')
