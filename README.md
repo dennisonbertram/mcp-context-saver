@@ -2,6 +2,32 @@
 
 A powerful tool that analyzes Model Context Protocol (MCP) servers and creates intelligent LLM-powered wrappers around them. Transform any MCP server into an expert system that can understand natural language requests and coordinate complex multi-tool operations automatically.
 
+## Table of Contents
+
+- [Features](#features)
+- [Installation](#installation)
+  - [NPM Package](#npm-package)
+  - [Prerequisites](#prerequisites)
+  - [Environment Setup](#environment-setup)
+- [Integration with AI Agents](#integration-with-ai-agents)
+  - [Claude Desktop](#claude-desktop)
+  - [Claude Code](#claude-code-vs-code-extension)
+  - [Other MCP-Compatible AI Agents](#other-mcp-compatible-ai-agents)
+- [Quick Start](#quick-start)
+  - [Analyze an MCP Server](#analyze-an-mcp-server)
+  - [Run the Wrapper Server](#run-the-wrapper-server)
+- [How It Works](#how-it-works)
+- [CLI Reference](#cli-reference)
+- [Expert Tool Interface](#expert-tool-interface)
+- [Configuration Format](#configuration-format)
+- [Development](#development)
+- [Examples](#examples)
+- [Advanced Usage](#advanced-usage)
+- [Troubleshooting MCP Integrations](#troubleshooting-mcp-integrations)
+- [Contributing](#contributing)
+- [License](#license)
+- [Support and Resources](#support-and-resources)
+
 ## Features
 
 - **🔍 Automatic Server Analysis**: Discovers tools, resources, and prompts from any MCP server
@@ -12,9 +38,9 @@ A powerful tool that analyzes Model Context Protocol (MCP) servers and creates i
 - **🧪 Production Ready**: Full test coverage, error handling, and TypeScript safety
 - **🔌 MCP Protocol Compliant**: Works with any standard MCP server implementation
 
-## Quick Start
+## Installation
 
-### Installation
+### NPM Package
 
 ```bash
 # Install globally for CLI usage
@@ -24,7 +50,19 @@ npm install -g mcp-context-saver
 npm install mcp-context-saver
 ```
 
-### Setup
+### Prerequisites
+
+- **Node.js**: Version 18.0.0 or higher
+- **npm**: Comes with Node.js
+- **OpenAI API Key**: Required for LLM functionality
+
+Verify your environment:
+```bash
+node --version  # Should be v18.0.0 or higher
+npm --version   # Should be 6.0.0 or higher
+```
+
+### Environment Setup
 
 **Required Environment Variable:**
 
@@ -34,6 +72,126 @@ export OPENAI_API_KEY=your-api-key-here
 ```
 
 > **Note**: The system uses OpenAI GPT-4o-mini for both analysis and runtime coordination. Future versions will support additional LLM providers.
+
+## Integration with AI Agents
+
+### Claude Desktop
+
+To use MCP Context Saver with Claude Desktop, add it to your Claude configuration:
+
+1. **Open Claude Desktop configuration:**
+
+   **macOS/Linux:**
+   ```bash
+   code ~/Library/Application\ Support/Claude/claude_desktop_config.json
+   ```
+
+   **Windows:**
+   ```bash
+   code %APPDATA%\Claude\claude_desktop_config.json
+   ```
+
+2. **Add MCP Context Saver to your configuration:**
+
+   ```json
+   {
+     "mcpServers": {
+       "mcp-context-saver": {
+         "command": "npx",
+         "args": [
+           "-y",
+           "mcp-context-saver",
+           "serve",
+           "/absolute/path/to/your/config.json"
+         ],
+         "env": {
+           "OPENAI_API_KEY": "your-api-key-here"
+         }
+       }
+     }
+   }
+   ```
+
+   Replace `/absolute/path/to/your/config.json` with the path to your generated configuration file.
+
+3. **Restart Claude Desktop** to load the new configuration.
+
+4. **Verify the connection** by checking the MCP icon in Claude Desktop - it should show your expert server.
+
+### Claude Code (VS Code Extension)
+
+Claude Code automatically discovers MCP servers. To add MCP Context Saver:
+
+1. **Generate a wrapper configuration** for your target MCP server:
+   ```bash
+   mcp-context-saver analyze /path/to/your/mcp-server
+   ```
+
+2. **Create a local configuration file** in your project:
+   ```bash
+   mkdir .mcp
+   echo '{
+     "mcpServers": {
+       "expert-server": {
+         "command": "npx",
+         "args": [
+           "-y", 
+           "mcp-context-saver",
+           "serve",
+           "./configs/your-server-config.json"
+         ],
+         "env": {
+           "OPENAI_API_KEY": "'$OPENAI_API_KEY'"
+         }
+       }
+     }
+   }' > .mcp/config.json
+   ```
+
+3. **Claude Code will automatically** detect and load the MCP server when you open the project.
+
+### Other MCP-Compatible AI Agents
+
+MCP Context Saver works with any MCP-compatible client:
+
+#### Amazon Q (Terminal)
+```bash
+# Install Amazon Q CLI
+brew install amazon-q
+
+# Configure with MCP Context Saver
+q configure mcp add mcp-context-saver \
+  --command "npx -y mcp-context-saver serve /path/to/config.json" \
+  --env OPENAI_API_KEY=$OPENAI_API_KEY
+```
+
+#### Custom MCP Clients
+
+For custom integrations, use the STDIO transport:
+
+```typescript
+import { Client } from "@modelcontextprotocol/sdk/client/index.js";
+import { StdioClientTransport } from "@modelcontextprotocol/sdk/client/stdio.js";
+
+const transport = new StdioClientTransport({
+  command: "npx",
+  args: ["-y", "mcp-context-saver", "serve", "./config.json"],
+  env: {
+    OPENAI_API_KEY: process.env.OPENAI_API_KEY
+  }
+});
+
+const client = new Client({
+  name: "my-client",
+  version: "1.0.0"
+}, {
+  capabilities: {}
+});
+
+await client.connect(transport);
+```
+
+## Quick Start
 
 ### Analyze an MCP Server
 
@@ -466,6 +624,83 @@ This usually means:
   3. OpenAI API quota exceeded
 
 Check the wrapper server logs for more details.
+```
+
+## Troubleshooting MCP Integrations
+
+### Claude Desktop Issues
+
+**Server not appearing in Claude:**
+```bash
+# Check Claude's MCP logs
+tail -n 20 -f ~/Library/Logs/Claude/mcp*.log  # macOS/Linux
+type "%APPDATA%\Claude\logs\mcp*.log"         # Windows
+
+# Common fixes:
+# 1. Ensure absolute paths in configuration
+# 2. Verify OPENAI_API_KEY is set in env section
+# 3. Check that npx is installed globally: npm install -g npx
+# 4. Restart Claude Desktop after config changes
+```
+
+**Connection failures:**
+```bash
+# Test the server manually
+npx -y mcp-context-saver serve /path/to/config.json
+
+# If this works, the issue is with Claude configuration
+# If it fails, check:
+# - Config file exists and is valid JSON
+# - OPENAI_API_KEY is set correctly
+# - The wrapped server path in config is correct
+```
+
+### Claude Code Issues
+
+**MCP server not detected:**
+```bash
+# Ensure .mcp/config.json exists in project root
+ls -la .mcp/config.json
+
+# Validate JSON syntax
+cat .mcp/config.json | jq .
+
+# Reload VS Code window: Cmd/Ctrl + Shift + P → "Developer: Reload Window"
+```
+
+### General MCP Debugging
+
+**Enable debug logging:**
+```bash
+# Run with debug output
+DEBUG=* npx mcp-context-saver serve ./config.json 2>&1 | tee debug.log
+
+# Check for:
+# - Connection errors to wrapped server
+# - OpenAI API errors
+# - Tool execution failures
+```
+
+**Verify wrapped server works:**
+```bash
+# Test the original MCP server directly
+echo '{"jsonrpc":"2.0","method":"initialize","id":1,"params":{}}' | node /path/to/original/server.js
+
+# Should return server capabilities
+# If not, fix the original server first
+```
+
+**Common environment issues:**
+```bash
+# Windows: APPDATA not found
+# Add to configuration:
+"env": {
+  "OPENAI_API_KEY": "...",
+  "APPDATA": "C:\\Users\\YourUsername\\AppData\\Roaming\\"
+}
+
+# macOS/Linux: Permission denied
+chmod +x /path/to/server.js
 ```
 
 ## Contributing
