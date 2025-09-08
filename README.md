@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/dennisonbertram-mcp-context-saver-badge.png)](https://mseep.ai/app/dennisonbertram-mcp-context-saver)
+
 # MCP Context Saver
 
 A powerful tool that analyzes Model Context Protocol (MCP) servers and creates intelligent LLM-powered wrappers around them. Transform any MCP server into an expert system that can understand natural language requests and coordinate complex multi-tool operations automatically.
